@@ -1,0 +1,13 @@
+{
+    "idf.portWin": "COM7",
+    "idf.adapterTargetName": "esp32",
+    "idf.openOcdConfigs": [
+        "board/esp32-wrover-kit-3.3v.cfg"
+    ],
+    "files.associations": {
+        "array": "cpp",
+        "string_view": "cpp",
+        "regex": "cpp"
+    },
+    "cmake.sourceDirectory": "C:/Users/koeki/OneDrive/Documents/PlatformIO/Projects/OTA_Led_Relais_control/.pio/libdeps/esp32dev/AsyncTCP"
+}

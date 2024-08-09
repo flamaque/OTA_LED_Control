@@ -1,0 +1,33 @@
+{
+	"folders": [
+		{
+			"name": "OTA_Led_Relais_control",
+			"path": ".."
+		},
+		{
+			"name": "cell-fund",
+			"path": "../../../../../../../../cell-fund"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"functional": "cpp",
+			"mqtt_connection.h": "c"
+		},
+		"nrf-connect.applications": [
+			"${workspaceFolder:cell-fund}\\v2.4.0\\lesson2\\cellfund_less2_exer2",
+			"${workspaceFolder:cell-fund}\\v2.4.0\\lesson3\\cellfund_less3_exer1",
+			"${workspaceFolder:cell-fund}\\v2.4.0\\lesson4\\cellfund_less4_exer1",
+			"${workspaceFolder:cell-fund}\\v2.4.0\\lesson4\\cellfund_less4_exer2",
+			"${workspaceFolder:cell-fund}\\v2.4.0\\lesson5\\cellfund_less5_exer1",
+			"${workspaceFolder:cell-fund}\\v2.4.0\\lesson5\\cellfund_less5_exer2",
+			"${workspaceFolder:cell-fund}\\v2.4.0\\lesson6\\cellfund_less6_exer1",
+			"${workspaceFolder:cell-fund}\\v2.4.0\\lesson6\\cellfund_less6_exer2",
+			"${workspaceFolder:cell-fund}\\v2.4.0\\lesson7\\cellfund_less7_exer1",
+			"${workspaceFolder:cell-fund}\\v2.4.0\\lesson8\\nrf91_simple_tracker",
+			"${workspaceFolder:cell-fund}\\v2.4.0\\lesson6\\cellfund_less6_exer2_solution"
+		],
+		"nrf-connect.toolchain.path": "${nrf-connect.toolchain:2.4.0}",
+		"nrf-connect.topdir": "${nrf-connect.sdk:2.4.0}"
+	}
+}

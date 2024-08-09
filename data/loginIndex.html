@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+
+    <link rel='icon' href='data:,'>
+    <link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css'>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.0.4/jscolor.min.js'></script>
+
+    <style>
+        .dropbtn {
+            background-color: #04AA6D;
+            color: white;
+            padding: 16px;
+            font-size: 16px;
+            border: none;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f1f1f1;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #ddd;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown:hover .dropbtn {
+            background-color: #3e8e41;
+        }
+    </style>
+</head>
+
+<body>
+    <div class='container'>
+        <div class='row'>
+            <h1>ESP Color picker</h1>
+        </div>
+        <a class='btn btn-primary btn-lg' href="javascript:window.open('http://' + ipAddress + '/serverIndex', 'yourWindowName', 'width=200,height=150');" role='button'>Update firmware</a>
+        
+        <div>
+            <a class='btn btn-primary btn-lg' href="javascript:window.open('http://' + ipAddress + '/Uit', 'Wit licht uit', 'width=200,height=150');">White
+                LED Off</a>
+            <a class='btn btn-primary btn-lg' href="javascript:window.open('http://' + ipAddress + '/Aan', 'Wit licht aan', 'width=200,height=150');">White
+                LED On</a>
+        </div>
+
+        <div><a class="btn btn-success" href="javascript:window.open('http://' + ipAddress + '/Relay1?', 'Relay1', 'width=200,height=150');">Xmas
+                lights</a>
+            <a class="btn btn-success" href="javascript:window.open('http://' + ipAddress + '/Relay2?', 'Relay2', 'width=200,height=150');">Big
+                TV</a>
+            <a class="btn btn-success" href="javascript:window.open('http://' + ipAddress + '/Relay3?', 'Relay3', 'width=200,height=150');">Small
+                TV</a>
+        </div>
+
+        <div class='dropdown'><button class='dropbtn'>Fading</button>
+            <div class='dropdown-content'>
+                <a href="javascript:window.open('http://' + ipAddress + '/Fade', 'yourWindowName', 'width=200,height=150');"
+                    onclick="setFadingSpeed('Kitchen')" id='Kitchen'>Fade Kitchen</a>"
+                <a href="javascript:window.open('http://' + ipAddress + '/Fade2', 'yourWindowName', 'width=200,height=150');"
+                    onclick="setFadingSpeed('Bed')" id='Bed'>Fade Bed</a>
+            </div>
+        </div>
+        <div>Fading Speed: <input type='range' id='fadeSpeed' name='fadeSpeed' min='1' max='100' value='100'><span
+                id='fadeSpeedValue'>100</span></div>
+        <a class="btn btn-success" href="javascript:window.open('http://' + ipAddress + '/FadeStop', 'width=200,height=150');">Stop Fade</a>
+
+        <div><a class='btn btn-primary btn-lg' href='#' id='change_color' role='button'>Change Color</a>
+            <input class="jscolor {onchange:'update(this)'}" id='rgb'>
+        </div>
+
+        <div><a class='btn btn-primary btn-lg' href='#' id='change_color2' role='button'>Change Color2</a>
+            <input class="jscolor {onchange:'update2(this)'}" id='rgb2'>
+        </div>
+
+        <script>
+            var ipAddress;
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    ipAddress = xhr.responseText;
+                }
+            };
+            xhr.open('GET', '/getIPAddress');
+            xhr.send();
+
+
+            document.addEventListener('DOMContentLoaded', function () {
+                var setFadingSpeedButton = document.getElementById('Kitchen');
+                setFadingSpeedButton.addEventListener("click", function () {
+                    if (window.opener && window.opener.setFadingSpeed) {
+                        window.opener.setFadingSpeed('Fade');
+                    }
+                });
+            });
+
+            document.addEventListener('DOMContentLoaded', function () {
+                var fadeSpeedValue = document.getElementById('fadeSpeedValue').textContent;
+
+                function updateServerWithFadingSpeed(selectedButton) {
+                    fetch('/' + selectedButton)
+                        .then(response => {
+                            if (response.ok) {
+                                console.log('Fading speed updated on the server.');
+                            } else {
+                                console.error('Failed to update fading speed on the server.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('An error occurred:', error);
+                        });
+                }
+                window.setFadingSpeed = function (selectedButton) {
+                    updateServerWithFadingSpeed(selectedButton);
+                };
+            });
+
+            function update(picker) {
+                var r = Math.round(picker.rgb[0]);
+                var g = Math.round(picker.rgb[1]);
+                var b = Math.round(picker.rgb[2]);
+                var url = '/?r=' + r + '&g=' + g + '&b=' + b;
+                console.log('Update function called with colour (r):', r);
+                console.log('Update function called with colour (g):', g);
+                console.log('Update function called with colour (b):', b);
+                document.getElementById('change_color').href = '/?r=' + r + '&g=' + g + '&b=' + b;
+            }
+            function update2(picker) {
+                var r = Math.round(picker.rgb[0]);
+                var g = Math.round(picker.rgb[1]);
+                var b = Math.round(picker.rgb[2]);
+                var url = '/!r=' + r + '&g=' + g + '&b=' + b;
+                console.log('Update function2 called with colour (r):', r);
+                console.log('Update function2 called with colour (g):', g);
+                console.log('Update function2 called with colour (b):', b);
+                document.getElementById('change_color2').href = '/!r=' + r + '&g=' + g + '&b=' + b;
+            }       
+        </script>
+</body>
+</html>
