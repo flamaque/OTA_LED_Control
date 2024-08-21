@@ -20,7 +20,7 @@ const char *mqtt_server = "jrbubuntu.ddns.net";
 WiFiClient espClient;
 PubSubClient client(espClient);
 long lastMsg = 0;
-char mqttMessage[128];
+char mqttMessage[256]; //128
 int value = 0;
 const char *mqttUser = "jochem";
 const char *mqttPass = "Wachtwoord";
@@ -968,13 +968,13 @@ void TaskAirQuality(void *parameter)
   Serial.println(xPortGetCoreID());
   for (;;)
   {
+    Serial.println("Inside AirQuality task.  ");
     if (!client.connected())
     {
       reconnect();
     }
-
-    Serial.println("Inside measure task.  ");
     vTaskDelay(500 / portTICK_PERIOD_MS);
+
     float temperature_avg = 0, humidity_avg = 0;
     for(int i=0;i<10;i++)
     {
@@ -985,14 +985,13 @@ void TaskAirQuality(void *parameter)
     }
     temperature = temperature_avg / 10;
     humidity = humidity_avg / 10;
-    ppmCO2 = co2FromPwm.getCO2();
+    ppmCO2 = 12.88; //co2FromPwm.getCO2();
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 
     Serial.println("Temperature: " + String(temperature));
     Serial.println("Humidity: " + String(humidity));
     Serial.println("analog: " + String(ppmCO2));
 
-    client.loop();
     long now = millis();
     if (now - lastMsg > (1000 * 60))
     {
@@ -1000,8 +999,15 @@ void TaskAirQuality(void *parameter)
       // Convert the value to a char array
       sprintf(mqttMessage, "{\"temperature\":%.2f,\"humidity\":%.2f, \"co2\":%.2f}", temperature, humidity, ppmCO2);
       Serial.println(mqttMessage);
-      client.publish("studio/airquality", mqttMessage);
+      bool result = client.publish("studio/airquality", mqttMessage);
+      if (result) {
+        Serial.println("Message published successfully");
+      } else {
+        Serial.println("Error publishing message");
+      }
     }
+    client.loop(); /* Deze verplaatsen naar onderaan taak.*/
+
   }
   Serial.println("TaskAirQuality() ended");
 }
@@ -1092,13 +1098,13 @@ void setup(void)
   pinMode(ledW, OUTPUT);
   digitalWrite(ledW, LOW);
 
-  ledcSetup(1, 5000, 12); // 5 kHz PWM, 12-bit resolution
-  ledcSetup(2, 5000, 12);
-  ledcSetup(3, 5000, 12);
-  ledcSetup(4, 5000, 12);
-  ledcSetup(5, 5000, 12);
-  ledcSetup(6, 5000, 12);
-  ledcSetup(7, 5000, 12);
+  ledcSetup(1, 5000, 8); // 5 kHz PWM, 8-bit resolution
+  ledcSetup(2, 5000, 8);
+  ledcSetup(3, 5000, 8);
+  ledcSetup(4, 5000, 8);
+  ledcSetup(5, 5000, 8);
+  ledcSetup(6, 5000, 8);
+  ledcSetup(7, 5000, 8);
 
   // Voor LED. assign RGB led pins to channels
   ledcAttachPin(ledR, 1);
@@ -1120,7 +1126,7 @@ void setup(void)
   // Setup for digital LED strip
   // FastLED.addLeds<WS2812, DATA_PIN, RGB>(leds, NUM_LEDS); // GRB ordering is typical  //Pulses red
   FastLED.addLeds<WS2812B, DATA_PIN, RGB>(leds, NUM_LEDS).setCorrection(TypicalSMD5050);
-  FastLED.setMaxRefreshRate(120);
+  FastLED.setMaxRefreshRate(60); //120 FPS 
   vTaskDelay(500);
   FastLED.clear();
   FastLED.show();
@@ -1468,14 +1474,14 @@ void setup(void)
   FastLED.clear();      FastLED.show();
   server.send(200, "text/plain", "Fading stopped"); 
       });
-
   server.on("/stop", HTTP_GET, []()
             {      
       waving= dot = dots= dots2= cal= pingpong= colortemp= colortemp2= rainbow= thunder= sinelon= bpm= juggle= confetti = false; 
       FastLED.clear();
       FastLED.show();
 
-      server.send(200, "text/plain", "stopped digital LED"); });
+      server.send(200, "text/plain", "stopped digital LED"); 
+      });
 
   server.on("/setLEDValues", HTTP_GET, []()
             {
@@ -1666,11 +1672,11 @@ void setup(void)
   ledcWrite(7, 0); // Rood
 
   // pointer |       name |        STACK | pionter | priority |  create |  core
-  xTaskCreatePinnedToCore(codeForTask2, "RGB LED", 10000, NULL, 1, &Task2, 1);
+  xTaskCreatePinnedToCore(codeForTask2, "RGB LED", 6144, NULL, 1, &Task2, 1);
   delay(100); // needed to start-up task2
-  xTaskCreatePinnedToCore(codeForTask3, "RGB LED 2", 7500, NULL, 1, &Task3, 1);
+  xTaskCreatePinnedToCore(codeForTask3, "RGB LED 2", 6144, NULL, 1, &Task3, 1);
   delay(100); // needed to start-up task3
-  xTaskCreatePinnedToCore(TaskAirQuality, "air quality", 10000, NULL, 2, &Task4, 0);
+  xTaskCreatePinnedToCore(TaskAirQuality, "air quality", 4096, NULL, 2, &Task4, 0);
   delay(100); // needed to start-up task4
 
   server.begin();
